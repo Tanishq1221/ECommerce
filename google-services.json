@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "231363049549",
+    "project_id": "react-ecommerceapp-ffccd",
+    "storage_bucket": "react-ecommerceapp-ffccd.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:231363049549:android:95eeafba62f23703b8c404",
+        "android_client_info": {
+          "package_name": "com.tanishq.ecommerceapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAkbtCms3kkmQ7Ng6bOUxbg-ssrUIZe-FQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

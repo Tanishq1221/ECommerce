@@ -1,84 +1,106 @@
 import { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, FlatList, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, FlatList, ScrollView, Image, useColorScheme, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 
 import { Colors } from '../../Theme/Colors';
-// 1. Import BOTH PRODUCTS and your custom CATEGORIES
 import { PRODUCTS, CATEGORIES } from '../../constants/data'; 
 
 export default function HomeScreen() {
   const router = useRouter();
+  const theme = useColorScheme() ?? 'light';
+  const currentColors = Colors[theme];
   
+  const { width } = useWindowDimensions(); 
+  const cardWidth = (width - 55) / 2; 
+
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategoryId, setActiveCategoryId] = useState('All');
 
-  // 2. Filter using your categoryId instead of text
   const filteredProducts = PRODUCTS.filter((product) => {
     const matchesSearch = product.title.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = activeCategoryId === 'All' || product.categoryId === activeCategoryId;
-    
     return matchesSearch && matchesCategory;
   });
 
   const renderProduct = ({ item }) => (
     <TouchableOpacity 
-      style={styles.productCard} 
+      style={[styles.productCard, { width: cardWidth, backgroundColor: currentColors.surface, borderColor: currentColors.border }]} 
       onPress={() => router.push(`/product/${item.id}`)}
     >
-      <View style={styles.imagePlaceholder}>
-        <Text style={styles.cartIcon}>🛒</Text>
-      </View>
-      <Text style={styles.productTitle} numberOfLines={1}>{item.title}</Text>
-      <Text style={styles.productPrice}>${item.price.toFixed(2)}</Text>
+      <Image source={{ uri: item.image }} style={styles.productImage} />
+      <Text style={[styles.productTitle, { color: currentColors.text }]} numberOfLines={1}>{item.title}</Text>
+      <Text style={[styles.productPrice, { color: currentColors.primary }]}>${item.price.toFixed(2)}</Text>
     </TouchableOpacity>
   );
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: currentColors.background }]}>
       <View style={styles.container}>
         
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>Shop by Category</Text>
-          <Text style={styles.subHeader}>Welcome to your new store!</Text>
+          <Text style={[styles.headerTitle, { color: currentColors.text }]}>Shop by Category</Text>
+          <Text style={[styles.subHeader, { color: currentColors.textSecondary }]}>Welcome to your new store!</Text>
         </View>
 
-        <View style={styles.searchContainer}>
+        <View style={[styles.searchContainer, { backgroundColor: currentColors.surface, borderColor: currentColors.border }]}>
           <Text style={styles.searchIcon}>🔍</Text>
           <TextInput
-            style={styles.searchInput}
+            style={[styles.searchInput, { color: currentColors.text }]}
             placeholder="Search for sneakers, watches..."
-            placeholderTextColor={Colors.light.textSecondary}
+            placeholderTextColor={currentColors.textSecondary}
             value={searchQuery}
             onChangeText={setSearchQuery} 
           />
         </View>
 
-        {/* 3. Horizontal ScrollView for your expanded category list */}
+        <TouchableOpacity 
+          style={[styles.battleBanner, { backgroundColor: currentColors.primary }]}
+          onPress={() => router.push('/battle')}
+          activeOpacity={0.8}
+        >
+          <Text style={styles.battleBannerTitle}>🔥 Play Daily Battle ⚔️</Text>
+          <Text style={styles.battleBannerSub}>Vote for your favorite products to unlock deals!</Text>
+        </TouchableOpacity>
+
         <View>
           <ScrollView 
             horizontal 
             showsHorizontalScrollIndicator={false} 
             contentContainerStyle={styles.categoryScroll}
           >
-            {/* Hardcoded 'All' Button */}
             <TouchableOpacity
-              style={[styles.categoryBtn, activeCategoryId === 'All' && styles.activeCategoryBtn]}
+              style={[
+                styles.categoryBtn, 
+                { backgroundColor: currentColors.surface, borderColor: currentColors.border },
+                activeCategoryId === 'All' && { backgroundColor: currentColors.primary, borderColor: currentColors.primary }
+              ]}
               onPress={() => setActiveCategoryId('All')}
             >
               <Text style={styles.categoryIcon}>🛒</Text>
-              <Text style={[styles.categoryText, activeCategoryId === 'All' && styles.activeCategoryText]}>All</Text>
+              <Text style={[
+                styles.categoryText, 
+                { color: currentColors.textSecondary },
+                activeCategoryId === 'All' && styles.activeCategoryText
+              ]}>All</Text>
             </TouchableOpacity>
 
-            {/* Dynamically load your categories from data.js */}
             {CATEGORIES.map((cat) => (
               <TouchableOpacity
                 key={cat.id}
-                style={[styles.categoryBtn, activeCategoryId === cat.id && styles.activeCategoryBtn]}
+                style={[
+                  styles.categoryBtn, 
+                  { backgroundColor: currentColors.surface, borderColor: currentColors.border },
+                  activeCategoryId === cat.id && { backgroundColor: currentColors.primary, borderColor: currentColors.primary }
+                ]}
                 onPress={() => setActiveCategoryId(cat.id)}
               >
                 <Text style={styles.categoryIcon}>{cat.icon}</Text>
-                <Text style={[styles.categoryText, activeCategoryId === cat.id && styles.activeCategoryText]}>
+                <Text style={[
+                  styles.categoryText, 
+                  { color: currentColors.textSecondary },
+                  activeCategoryId === cat.id && styles.activeCategoryText
+                ]}>
                   {cat.title}
                 </Text>
               </TouchableOpacity>
@@ -86,7 +108,7 @@ export default function HomeScreen() {
           </ScrollView>
         </View>
 
-        <Text style={styles.sectionTitle}>Featured Products</Text>
+        <Text style={[styles.sectionTitle, { color: currentColors.text }]}>Featured Products</Text>
 
         <FlatList
           data={filteredProducts}
@@ -97,39 +119,52 @@ export default function HomeScreen() {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 20 }}
           ListEmptyComponent={
-            <Text style={styles.emptyText}>No products found in this category.</Text>
+            <Text style={[styles.emptyText, { color: currentColors.textSecondary }]}>No products found in this category.</Text>
           }
         />
+
+        <TouchableOpacity 
+          style={[styles.aiFab, { backgroundColor: currentColors.primary }]}
+          onPress={() => router.push('/ai-assistant')}
+        >
+          <Text style={styles.aiFabIcon}>✨</Text>
+        </TouchableOpacity>
+
       </View>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: Colors.light.background },
-  container: { flex: 1, paddingHorizontal: 20, paddingTop: 10 },
-  headerTitle: { fontSize: 24, fontWeight: 'bold', color: Colors.light.text },
-  subHeader: { fontSize: 14, color: Colors.light.textSecondary, marginBottom: 20 },
+  safeArea: { flex: 1 },
+  container: { flex: 1, paddingHorizontal: '5%', paddingTop: 10 }, 
+  headerTitle: { fontSize: 24, fontWeight: 'bold' },
+  subHeader: { fontSize: 14, marginBottom: 20 },
   
-  searchContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.light.surface, borderRadius: 12, paddingHorizontal: 15, marginBottom: 20, borderWidth: 1, borderColor: Colors.light.border },
+  searchContainer: { flexDirection: 'row', alignItems: 'center', borderRadius: 12, paddingHorizontal: 15, marginBottom: 20, borderWidth: 1 },
   searchIcon: { fontSize: 18, marginRight: 10 },
-  searchInput: { flex: 1, paddingVertical: 12, fontSize: 16, color: Colors.light.text },
+  searchInput: { flex: 1, paddingVertical: 12, fontSize: 16 },
+  
+  battleBanner: { padding: 16, borderRadius: 12, marginBottom: 20, alignItems: 'center', justifyContent: 'center', width: '100%' },
+  battleBannerTitle: { color: 'white', fontSize: 18, fontWeight: 'bold', marginBottom: 4 },
+  battleBannerSub: { color: 'rgba(255,255,255,0.9)', fontSize: 13, fontWeight: '500' },
   
   categoryScroll: { flexDirection: 'row', gap: 12, paddingBottom: 20 },
-  categoryBtn: { alignItems: 'center', padding: 12, borderRadius: 12, backgroundColor: Colors.light.surface, width: 80, borderWidth: 1, borderColor: Colors.light.border },
-  activeCategoryBtn: { backgroundColor: Colors.light.primary, borderColor: Colors.light.primary },
+  categoryBtn: { alignItems: 'center', padding: 12, borderRadius: 12, minWidth: 80, borderWidth: 1 },
   categoryIcon: { fontSize: 24, marginBottom: 5 },
-  categoryText: { fontSize: 12, color: Colors.light.textSecondary, fontWeight: '500' },
+  categoryText: { fontSize: 12, fontWeight: '500' },
   activeCategoryText: { color: 'white', fontWeight: 'bold' },
   
-  sectionTitle: { fontSize: 18, fontWeight: 'bold', color: Colors.light.text, marginBottom: 15 },
+  sectionTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 15 },
   
   row: { justifyContent: 'space-between' },
-  productCard: { width: '48%', backgroundColor: Colors.light.surface, borderRadius: 12, padding: 15, marginBottom: 15, borderWidth: 1, borderColor: Colors.light.border },
-  imagePlaceholder: { width: '100%', height: 100, backgroundColor: Colors.light.background, borderRadius: 8, justifyContent: 'center', alignItems: 'center', marginBottom: 10 },
-  cartIcon: { fontSize: 30, opacity: 0.2 },
-  productTitle: { fontSize: 14, fontWeight: '600', color: Colors.light.text, marginBottom: 5 },
-  productPrice: { fontSize: 14, fontWeight: 'bold', color: Colors.light.primary },
+  productCard: { borderRadius: 12, padding: 15, marginBottom: 15, borderWidth: 1 }, 
+  productImage: { width: '100%', aspectRatio: 1, borderRadius: 8, marginBottom: 10, resizeMode: 'cover' }, 
+  productTitle: { fontSize: 14, fontWeight: '600', marginBottom: 5 },
+  productPrice: { fontSize: 14, fontWeight: 'bold' },
   
-  emptyText: { textAlign: 'center', marginTop: 40, fontSize: 16, color: Colors.light.textSecondary }
+  emptyText: { textAlign: 'center', marginTop: 40, fontSize: 16 },
+  
+  aiFab: { position: 'absolute', bottom: 20, right: 20, width: 60, height: 60, borderRadius: 30, justifyContent: 'center', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 5, elevation: 8 },
+  aiFabIcon: { fontSize: 28 }
 });
